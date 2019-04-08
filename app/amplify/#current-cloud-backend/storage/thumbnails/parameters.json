@@ -1,0 +1,9 @@
+{
+    "bucketName": "block-thumbnails",
+    "authPolicyName": "s3_amplify_a4ed248b",
+    "unauthPolicyName": "s3_amplify_a4ed248b",
+    "authRoleName": "app-20190110134026-authRole",
+    "unauthRoleName": "app-20190110134026-unauthRole",
+    "authPermissions": "rw",
+    "unauthPermissions": "r"
+}

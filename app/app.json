@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Compassion",
+    "description": "The Compassion Project offical app.",
+    "slug": "the-compassion-project",
+    "privacy": "public",
+    "sdkVersion": "30.0.0",
+    "platforms": ["ios", "android"],
+    "version": "1.1.5",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#fff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.TheCompassionProject.CompassionProject"
+    },
+    "android": {
+      "package": "com.TheCompassionProject.CompassionProject",
+      "permissions": [],
+      "versionCode": 3
+    }
+  }
+}

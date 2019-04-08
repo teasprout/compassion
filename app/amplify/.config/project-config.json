@@ -1,0 +1,20 @@
+{
+    "projectName": "app",
+    "projectPath": "/Users/mitchellblack/Documents/thecompassionproject/app",
+    "defaultEditor": "atom",
+    "frontendHandler": {
+        "javascript": "/Users/mitchellblack/.npm-global/lib/node_modules/@aws-amplify/cli/node_modules/amplify-frontend-javascript"
+    },
+    "javascript": {
+        "framework": "react-native",
+        "config": {
+            "SourceDir": "/",
+            "DistributionDir": "/",
+            "BuildCommand": "npm run-script build",
+            "StartCommand": "npm run-script start"
+        }
+    },
+    "providers": {
+        "awscloudformation": "/Users/mitchellblack/.npm-global/lib/node_modules/@aws-amplify/cli/node_modules/amplify-provider-awscloudformation"
+    }
+}

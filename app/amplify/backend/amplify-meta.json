@@ -1,0 +1,63 @@
+{
+	"providers": {
+		"awscloudformation": {
+			"AuthRoleName": "app-20190110134026-authRole",
+			"UnauthRoleArn": "arn:aws:iam::612988883802:role/app-20190110134026-unauthRole",
+			"AuthRoleArn": "arn:aws:iam::612988883802:role/app-20190110134026-authRole",
+			"Region": "us-east-1",
+			"DeploymentBucketName": "app-20190110134026-deployment",
+			"UnauthRoleName": "app-20190110134026-unauthRole",
+			"StackName": "app-20190110134026",
+			"StackId": "arn:aws:cloudformation:us-east-1:612988883802:stack/app-20190110134026/f6293e80-1517-11e9-9fbc-0a0b50a105f6"
+		}
+	},
+	"api": {
+		"Block API": {
+			"service": "AppSync",
+			"output": {
+				"securityType": "API_KEY",
+				"GraphQLAPIIdOutput": "pfgyu7uys5b5ddgk6zf7w342iu",
+				"GraphQLAPIEndpointOutput": "https://yokymsstbzdjjn62yhvcymkueu.appsync-api.us-east-1.amazonaws.com/graphql",
+				"GraphQLAPIKeyOutput": "da2-tllripftxver3kqlo47js7tp4m"
+			},
+			"lastPushTimeStamp": "2019-01-10T20:41:10.193Z"
+		}
+	},
+	"auth": {
+		"cognito1cd8c47c": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation",
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/app-20190110134026-deployment/amplify-cfn-templates/auth/cognito1cd8c47c-cloudformation-template.yml",
+				"logicalId": "authcognito1cd8c47c"
+			},
+			"lastPushTimeStamp": "2019-01-10T22:52:26.902Z",
+			"output": {
+				"AppClientSecret": "in48arjf3i20agalsbtueged5ejo77bd5kqge54pujpjgt7167n",
+				"UserPoolId": "us-east-1_k3qdpAu1Y",
+				"AppClientIDWeb": "51tne2sh7e25g1nv6o0s3fq5i5",
+				"AppClientID": "7rkv2lcs4mdk8p3hkv567hi3p2",
+				"IdentityPoolId": "us-east-1:f0ebea5f-8866-4afb-a8bb-b8976a74ab04",
+				"IdentityPoolName": "cognito1cd8c47c_identitypool_1cd8c47c",
+				"UserPoolName": "cognito1cd8c47c_userpool_1cd8c47c"
+			},
+			"lastPushDirHash": "Lg0bJJfaNdlAYUqNIHv37cDI6g8="
+		}
+	},
+	"storage": {
+		"thumbnails": {
+			"service": "S3",
+			"providerPlugin": "awscloudformation",
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/app-20190110134026-deployment/amplify-cfn-templates/storage/s3-cloudformation-template.json",
+				"logicalId": "storagethumbnails"
+			},
+			"lastPushTimeStamp": "2019-01-10T22:52:26.902Z",
+			"output": {
+				"BucketName": "block-thumbnails",
+				"Region": "us-east-1"
+			},
+			"lastPushDirHash": "THKAUuzGJupAkKoO5kHAu/UkfZo="
+		}
+	}
+}
