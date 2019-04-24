@@ -5,7 +5,9 @@ import {
   View,
   Text,
   ActivityIndicator,
-  Alert } from 'react-native';
+  Alert,
+  Platform
+ } from 'react-native';
 
 /* Amplify Imports. RELATIVE PATHS */
 import * as queries from '../src/graphql/queries'
@@ -20,67 +22,72 @@ export default class BlockListComp extends React.Component {
   constructor(props) {
       super(props);
       this.state = {
-         image_loaded: false,
-         text_loaded: false,
-         image_error: false,
-         text_error:false,
+         imageLoaded: false,
+         textLoaded: false,
+         imageError: false,
+         textError:false,
          src: null,
       }
     }
 
-  async fetch_block() {
+  /* get block info from dynamodb */
+  async fetchBlock() {
     const input = {
       id: this.props.number
     };
     const blockInfo = await API.graphql(graphqlOperation(queries.getBlock, input ));
-    console.log(blockInfo);
     if(blockInfo.data.getBlock == null){
-      this._on_text_error();
+      this.onTextError();
     } else {
       this.setState({ block: blockInfo});
-      this._on_block_load();
+      this.onBlockLoad();
     }
   }
 
-  get_image_source() {
-    var image_name = this.props.number + '-sm.jpg'
-    Storage.get(image_name)
+  /* get image source from s3 */
+  getImageSource() {
+    var imageName = this.props.number + '-sm.jpg'
+    Storage.get(imageName)
       .then(url => {
         this.setState({
             src: { uri: url }
         });
-        console.log(url);
       });
   }
 
   componentDidMount(){
-    this.get_image_source();
-    this.fetch_block();
+    this.getImageSource();
+    this.fetchBlock();
   }
 
-  _on_image_load = () => {
-    this.setState(() => ({ image_loaded: true }))
+  /* set image load to true */
+  onImageLoad = () => {
+    this.setState(() => ({ imageLoaded: true }))
   }
 
-  _on_block_load = () => {
-    this.setState(() => ({ text_loaded: true }))
+  /* set image load to false */
+  onBlockLoad = () => {
+    this.setState(() => ({ textLoaded: true }))
   }
 
-  _on_image_error = () => {
+  /* run on image error */
+  onImageError = () => {
     this.setState({
-      image_loaded: true,
-      image_error: true,
+      imageLoaded: true,
+      imageError: true,
     })
   }
 
-  _on_text_error(){
+  /* run on text error */
+  onTextError(){
     this.setState({
-      text_loaded: true,
-      text_error: true,
+      textLoaded: true,
+      textError: true,
     })
   }//
 
-  _on_error = () => {
+  /* run on text and image error */
+  onError = () => {
     Alert.alert("Oops, something went wrong. Try searching for a different number")
     this.props.callback()
   }
@@ -88,56 +95,56 @@ export default class BlockListComp extends React.Component {
   render() {
     return (
       <View>
-      {(this.state.image_error) && (this.state.text_error) }
+      {(this.state.imageError) && (this.state.textError) }
       <View style={styles.container}>
-        {!this.state.image_error &&
+        {!this.state.imageError &&
           <View style={styles.leftContainer}>
             <Image
               source={ this.state.src }
               style={ styles.image }
-              onLoad={ this._on_image_load }
-              onError={ this._on_image_error }
+              onLoad={ this.onImageLoad }
+              onError={ this.onImageError }
             />
           </View>
         }
-        {this.state.image_error &&
+        {this.state.imageError &&
         <View style={styles.leftContainer}>
           <Image
               source={require('../assets/images/TCPlogoLight.png')}
               style={ styles.image }
-              onLoad={ this._on_image_load }
-              onError={ this._on_image_error }
+              onLoad={ this.onImageLoad }
+              onError={ this.onImageError }
           />
         </View>
         }
         {
-          !(this.state.text_loaded && this.state.image_loaded) &&
+          !(this.state.textLoaded && this.state.imageLoaded) &&
           <View style={ styles.centerContainer }>
             <ActivityIndicator size="large" color="#4d3f68" style={{ marginTop: 25, marginLeft: 70 }}/>
           </View>
         }
         {
-          (this.state.text_loaded && this.state.image_loaded && !this.state.text_error) &&
+          (this.state.textLoaded && this.state.imageLoaded && !this.state.textError) &&
           <View style={styles.centerContainer}>
             <View style={styles.leftContainer}>
-              <Text style={styles.numberText}>{'#'+ (this.props.number) }</Text>
-              <Text style={styles.gradeText}>{this.state.block.data.getBlock.grade}</Text>
-              <Text style={styles.locationText}>{this.state.block.data.getBlock.location }</Text>
+              <Text style={[styles.numberText, styles.onePlusFontFix]}>{'#'+ (this.props.number) }</Text>
+              <Text style={[styles.gradeText, styles.onePlusFontFix]}>{this.state.block.data.getBlock.grade}</Text>
+              <Text style={[styles.locationText, styles.onePlusFontFix]}>{this.state.block.data.getBlock.location }</Text>
             </View>
           </View>
         }
         {
-          (this.state.text_loaded && this.state.image_loaded && this.state.text_error) &&
+          (this.state.textLoaded && this.state.imageLoaded && this.state.textError) &&
           <View style={styles.centerContainer}>
             <View style={styles.leftContainer}>
-              <Text style={styles.numberText}>{'#'+ (this.props.number) }</Text>
-              <Text style={styles.gradeText}>Information Unavailable</Text>
+              <Text style={[styles.numberText, styles.onePlusFontFix]}>{'#'+ (this.props.number) }</Text>
+              <Text style={[styles.gradeText, styles.onePlusFontFix]}>Information Unavailable</Text>
             </View>
           </View>
         }
       </View>
       {
-          (this.state.text_loaded && this.state.image_loaded) &&
+          (this.state.textLoaded && this.state.imageLoaded) &&
           <View style={{ height: 1, backgroundColor: '#ddd', alignItems: 'stretch' }}/>
       }
       </View>
@@ -195,5 +202,11 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     alignItems: 'center'
+  },
+  onePlusFontFix: {
+      ...Platform.select({
+          ios: { fontFamily: 'Arial', },
+          android: { fontFamily: 'Roboto' }
+      })
   },
 })

@@ -9,7 +9,7 @@ import styles from '../constants/style.js';
 const navColor = '#664ea0';
 
 export default class BlockScreen extends React.Component {
-
+  /* create back button */
   static navigationOptions = ({ navigation }) => {
     return {
       headerLeft: (
@@ -33,7 +33,7 @@ export default class BlockScreen extends React.Component {
     };
   }
 
-  _search_again = () => {
+  searchAgain = () => {
     this.props.navigation.goBack()
   }
 
@@ -42,9 +42,8 @@ export default class BlockScreen extends React.Component {
       <View style={styles.container}>
         <StatusBar barStyle='light-content'/>
         <BlockComp
-          /* CHANGE DEFAUlT PARAMETER HERE TO ERROR PARAMETER */
           number={ JSON.stringify(this.props.navigation.getParam('number', 0))}
-          callback={this._search_again}
+          callback={this.searchAgain}
         />
       </View>
     );

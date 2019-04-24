@@ -20,27 +20,34 @@ export default class SearchScreen extends React.Component {
     };
   }
 
-  _on_goBack = () => {
+  /*
+   * null method to pass as callback.
+   * this callback rerenders the history and favorites screen,
+   * but does nothing for the search screen
+   */
+  onGoBack = () => {
 
   }
 
-  /* */
-  _check_entry() {
+  /* ensure the number entered is non empty before passing to BlockScreen */
+  checkEntry() {
     if(this.state.number != ''){
       var enteredNumber = parseInt(this.state.number); /* Cast enteredText to an int */
       this.setState({ number: ''});
-      this.props.navigation.navigate('Block', { number: enteredNumber, onGoBack: this._on_goBack.bind(this)})
+      this.props.navigation.navigate('Block', { number: enteredNumber, onGoBack: this.onGoBack.bind(this)})
     } else {
       Alert.alert("Please enter a number")
       this.setState({number: ''})
     }
   }
 
-  _on_sponsors() {
+  /* redirect user to sponsors screen when they click sponsors button */
+  onSponsors() {
     this.props.navigation.navigate('Sponsors')
   }
 
-  _on_about() {
+ /* redirects user to about screen when they click about button */
+  onAbout() {
     this.props.navigation.navigate('About')
   }
 
@@ -48,9 +55,11 @@ export default class SearchScreen extends React.Component {
     return (
       <View style={styles.container}>
       <StatusBar barStyle='light-content'/>
+      {/* TCP MT Logo */}
       <Image source={require('../assets/images/mtlogo3400.png')} style={styles.logo}/>
-        <View style={{backgroundColor: '#9785bf', height: 44, width: 354, borderRadius: 2, marginTop: 10}}>
-          <View style={{backgroundColor: '#ffffff', height: 40, width: 350, borderRadius: 2, marginTop: 2, marginLeft: 2}}>
+      {/* text input and purple boundary */}
+        <View style={{backgroundColor: '#9785bf', height: 44, width: 354, maxWidth: '90%', borderRadius: 2, marginTop: 10}}>
+          <View style={{backgroundColor: '#ffffff', borderRadius: 2, marginTop: 2, marginLeft: 2, marginRight: 2}}>
             <TextInput
               placeholder="Block Number"
               platform='android'
@@ -58,7 +67,7 @@ export default class SearchScreen extends React.Component {
               returnKeyType= {Platform.OS === 'ios' ? 'done' : 'search'}
               enablesReturnKeyAutomatically={true}
               onChangeText={(text) => this.setState({number: text})}
-              onSubmitEditing={this._check_entry.bind(this)}
+              onSubmitEditing={this.checkEntry.bind(this)}
               underlineColorAndroid='transparent' // hides extra underline in android text input
               value={this.state.number}
               style={styles.searchBox}
@@ -66,8 +75,12 @@ export default class SearchScreen extends React.Component {
 
           </View>
         </View>
+
         <Text style={styles.h3}>Enter the number of the block you want to search for.</Text>
+
+
         <View style={searchStyles.bottom}>
+            {/* about button */}
             <Button
                 icon={{
                     name: 'information-outline',
@@ -76,9 +89,10 @@ export default class SearchScreen extends React.Component {
                     color: "white"
                 }}
                 title="About The Compassion Project"
-                onPress={this._on_about.bind(this)}
+                onPress={this.onAbout.bind(this)}
                 buttonStyle={searchStyles.aButton}
             />
+            {/* sponsors button */}
             <Button
                 icon={{
                     name: 'gift',
@@ -88,10 +102,9 @@ export default class SearchScreen extends React.Component {
                 }}
                 title="Our Sponsors"
                 containerStyle={{alignItems: 'center'}}
-                onPress={this._on_sponsors.bind(this)}
+                onPress={this.onSponsors.bind(this)}
                 buttonStyle={searchStyles.aButton}
             />
-
         </View>
       </View>
     );

@@ -97,7 +97,7 @@ class InText extends React.Component {
                     style={styles.imageM}/>
                 </TouchableWithoutFeedback>
             </View>
-            <Text style={styles.name}>Joe Sullivan Films</Text>
+            <Text style={[styles.name,styles.onePlusFontFix]}>Joe Sullivan Films</Text>
 
             </Card>
 
@@ -211,8 +211,8 @@ class InText extends React.Component {
                 </TouchableWithoutFeedback>
             </View>
 
-            <Text style={styles.name}>Alison & Rance Harmon</Text>
-            <Text style={styles.name}>Teresa & Steve Seright</Text>
+            <Text style={[styles.name, styles.onePlusFontFix]}>Alison & Rance Harmon</Text>
+            <Text style={[styles.name, styles.onePlusFontFix]}>Teresa & Steve Seright</Text>
             </Card>
 
             <Card
@@ -270,7 +270,7 @@ class InText extends React.Component {
 
             </View>
 
-            <Text style={styles.name}>Grace Anderson & Larry Morales</Text>
+            <Text style={[styles.name, styles.onePlusFontFix]}>Grace Anderson & Larry Morales</Text>
 
             </Card>
             </ScrollView>

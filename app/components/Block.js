@@ -22,40 +22,38 @@ import API, { graphqlOperation } from '@aws-amplify/api';
 import aws_exports from '../aws-exports';
 Amplify.configure(aws_exports);
 
+/* Sizing Constants */
 const blockSide = Dimensions.get('window').width;
 const leftMargin = 15;
 const topMargin = 5;
 const textSize = 16;
 
 export default class BlockComp extends React.Component {
-
   constructor(props) {
       super(props);
       this.state = {
-         image_loaded: false,
-         text_loaded: false,
-         image_error: false,
-         text_error:false,
+         imageLoaded: false,
+         textLoaded: false,
+         imageError: false,
+         textError:false,
          src: null,
-         block_liked: false,
-         view_recorded: false,
+         blockLiked: false,
+         viewRecorded: false,
       }
     }
 
   /* Fetch block info from database */
-  async fetch_block() {
+  async fetchBlock() {
     const input = {
       id: this.props.number
     };
     const blockInfo = await API.graphql(graphqlOperation(queries.getBlock, input ));
     if(blockInfo.data.getBlock == null){
-      this._on_text_error();
+      this.onTextError();
     } else {
-      console.log(blockInfo);
       this.setState({ block: blockInfo});
-      this._on_block_load();
+      this.onBlockLoad();
     }
-    this._on_view()
   }
 
   /* Increment number of views in the database */
@@ -66,7 +64,6 @@ export default class BlockComp extends React.Component {
     blockInfo.views = viewsAsInt.toString()
 
     var updateInfo = await API.graphql(graphqlOperation(mutations.updateBlock, { input: blockInfo } ));
-    console.log(updateInfo);
   }
 
   /* Increment number of likes in the database */
@@ -77,7 +74,6 @@ export default class BlockComp extends React.Component {
     blockInfo.likes = likesAsInt.toString()
 
     var updateInfo = await API.graphql(graphqlOperation(mutations.updateBlock, { input: blockInfo } ));
-    console.log(updateInfo);
   }
 
   /* Decrement number of likes in the database */
@@ -88,36 +84,33 @@ export default class BlockComp extends React.Component {
     blockInfo.likes = likesAsInt.toString()
 
     var updateInfo = await API.graphql(graphqlOperation(mutations.updateBlock, { input: blockInfo } ));
-    console.log(updateInfo);
   }
 
   /* Get url for image in cloud */
-  get_image_source() {
-    var image_name = this.props.number + '-lg.jpg'
-    Storage.get(image_name)
+  getImageSource() {
+    var imageName = this.props.number + '-lg.jpg'
+    Storage.get(imageName)
       .then(url => {
         this.setState({
             src: { uri: url }
         });
-        // console.log(url);
       });
   }
 
-  /* Check whether or not the user has liked this block in async storage  */
-  async _check_for_like() {
+  /* Check whether or not the user has liked this block in AsyncStorage  */
+  async checkForLike() {
     /*
       Try to get Liked from AsyncStorage. If the user has not liked anything,
       getItem will throw an exception. This shouldn't be a problem, though,
-      as block_liked is set to false by default
+      as blockLiked is set to false by default
     */
     try {
       var liked = await AsyncStorage.getItem('Liked');
-      console.log(liked);
       const items = JSON.parse(liked);
       const keys = Object.keys(items);
 
       if(keys.includes( this.props.number.toString() )){
-        this.setState({block_liked: true});
+        this.setState({blockLiked: true});
       }
     } catch(error) {
       console.log(error);
@@ -126,34 +119,31 @@ export default class BlockComp extends React.Component {
 
   /* fetch data from AWS and check for like when the component mounts */
   componentDidMount(){
-    this.get_image_source();
-    this.fetch_block();
-    this._check_for_like();
+    this.getImageSource();
+    this.fetchBlock();
+    this.checkForLike();
   }
 
   /* change state when the image has loaded */
-  _on_image_load = () => {
-    this.setState(() => ({ image_loaded: true, image_error: false }))
-    this._on_view()
+  onImageLoad = () => {
+    this.setState({ imageLoaded: true, imageError: false }, this.onChangeState.bind(this))
   }
 
   /* change state when the statement has loaded */
-  _on_block_load = () => {
-    this.setState(() => ({ text_loaded: true, text_error:false }))
+  onBlockLoad() {
+    this.setState({ textLoaded: true, textError:false }, this.onChangeState.bind(this))
   }
 
-  /*
-   method called when user clicks the heart button
-  */
-  async _on_like() {
+  /* method called when user clicks the heart button and the block isn't liked */
+  async onLike() {
     Alert.alert("Favorited!", "You can view your Favorited blocks in the Favorites tab");
-    this.setState({block_liked: true });
-    var num_as_string = this.props.number.toString();
+    this.setState({blockLiked: true });
+    var numAsString = this.props.number.toString();
     var time = Date.now();
     try {
       let blockInfo = {
-        [ num_as_string ] : {
-          key: num_as_string,
+        [ numAsString ] : {
+          key: numAsString,
           time: time,
         }
       }
@@ -162,42 +152,47 @@ export default class BlockComp extends React.Component {
     } catch (error) {
       console.log(error);
     }
-    if(!this.state.text_error){
+    if(!this.state.textError){
       this.incrementLikes();
     }
   }
 
-  async _on_dislike() {
+  /* method called when user clicks the heart button and the block is liked */
+  async onDislike() {
     Alert.alert("Unfavorited");
-    this.setState({block_liked: false });
-    var num_as_string = this.props.number.toString();
+    this.setState({blockLiked: false });
+    var numAsString = this.props.number.toString();
 
     try {
       var liked = await AsyncStorage.getItem('Liked');
       var likedObject = JSON.parse(liked);
 
-      delete likedObject[num_as_string];
-      console.log(likedObject);
+      delete likedObject[numAsString];
       await AsyncStorage.setItem('Liked', JSON.stringify(likedObject));
     } catch (error) {
       console.log(error);
     }
-    if(!this.state.text_error){
+    if(!this.state.textError){
       this.decrementLikes();
     }
   }
 
-  async _on_view() {
-    if(this.state.image_loaded
-       && this.state.text_loaded
-       && !this.state.view_recorded
-       && !(this.state.text_error && this.state.image_error)){
-      var num_as_string = this.props.number.toString();
+  /*
+   * callback for each time imageLoaded, textLoaded, textError, or imageError is changed.
+   * if the block is loaded succesfully, log this in AsyncStorage.
+   * otherwise, call the onError to return to the previous screen
+   */
+  async onChangeState() {
+    if(this.state.imageLoaded
+       && this.state.textLoaded
+       && !this.state.viewRecorded
+       && !(this.state.textError && this.state.imageError)){
+      var numAsString = this.props.number.toString();
       var time = Date.now();
       try {
         let blockInfo = {
-          [ num_as_string ] : {
-            key: num_as_string,
+          [ numAsString ] : {
+            key: numAsString,
             time: time
           }
         }
@@ -206,49 +201,58 @@ export default class BlockComp extends React.Component {
       } catch (error) {
         console.log(error);
       }
-      if(!this.state.text_error){
+      if(!this.state.textError){
         this.incrementViews();
       }
-      this.setState({ view_recorded: true })
+      this.setState({ viewRecorded: true })
+    }
+    if(this.state.textError && this.state.imageError) {
+        this.onError()
     }
   }
 
-  _on_image_error = () => {
+  /* run when there is an image error. if there is not also a text error, we will display default images */
+  onImageError = () => {
     this.setState({
-      image_loaded: true,
-      image_error: true,
-    })
-    this._on_view()
+      imageLoaded: true,
+      imageError: true,
+    }, this.onChangeState.bind(this))
   }
 
-
-  _on_text_error(){
+  /* run when there is an text error. if there is not also a image error, we will display default "No artist statement available"*/
+  onTextError(){
     this.setState({
-      text_loaded: true,
-      text_error: true,
-    })
+      textLoaded: true,
+      textError: true,
+    }, this.onChangeState.bind(this))
   }
 
-  _on_error = () => {
+  /*
+   * run when there is both an image and text error.
+   * this displays an error message and returns the user to the previous screen
+   */
+  onError = () => {
     Alert.alert("Oops, something went wrong. Try searching for a different number. ")
     this.props.callback()
   }
 
-  _toggle_like(){
-    if(this.state.block_liked){
-      this._on_dislike()
+  /* change the status of like and call appropriate funtion */
+  toggleLike(){
+    if(this.state.blockLiked){
+      this.onDislike()
     } else {
-      this._on_like()
+      this.onLike()
     }
   }
 
 
+  /* double tap handler. calculate time between taps of picture and toggleLike is sufficiently close together */
   lastTap = null
   delay = 3000
-  _image_tap = () => {
+  imageTap = () => {
     const now = Date.now();
     if (this.lastTap && (now - this.lastTap) < this.delay) {
-      this._toggle_like();
+      this.toggleLike();
     } else {
       this.lastTap = now
     }
@@ -257,46 +261,44 @@ export default class BlockComp extends React.Component {
   render() {
     return (
       <ScrollView>
-        {/* If both errors occured, call _on_error*/}
-        {(this.state.image_error) && (this.state.text_error) && (this._on_error())}
         <View style={styles.container}>
-          {(!this.state.image_error) &&
+          {(!this.state.imageError) &&
           <View style={styles.centerContainer}>
-            <TouchableWithoutFeedback onPress={this._image_tap}>
+            <TouchableWithoutFeedback onPress={this.imageTap}>
               <Image
                 source={ this.state.src }
                 style={ styles.image }
-                onLoad={ this._on_image_load }
-                onError={ this._on_image_error.bind(this) }
+                onLoad={ this.onImageLoad.bind(this) }
+                onError={ this.onImageError.bind(this) }
               />
             </TouchableWithoutFeedback>
           </View>
           }
 
           {/*show the logo and an error message when the image can't be found*/}
-          {(this.state.image_error && !this.state.text_error && this.state.text_loaded) &&
-            <TouchableWithoutFeedback onPress={this._image_tap}>
+          {(this.state.imageError && !this.state.textError && this.state.textLoaded) &&
+            <TouchableWithoutFeedback onPress={this.imageTap}>
               <View style={styles.centerContainer}>
                 <Image source={require('../assets/images/TCPlogoLight.png')} style={styles.image}/>
                 <Text style={styles.imageErrorText}>No Image{"\n"} Found</Text>
               </View>
             </TouchableWithoutFeedback>
           }
-          {!(this.state.text_loaded && this.state.image_loaded) &&
+          {!(this.state.textLoaded && this.state.imageLoaded) &&
             <ActivityIndicator size="large" color="#4d3f68"/>
           }
-          {!(this.state.text_loaded && this.state.image_loaded) &&
+          {!(this.state.textLoaded && this.state.imageLoaded) &&
             <Text style={styles.loadText}>Hold on, let us get that for you</Text>
           }
 
           {
-            (this.state.text_loaded && this.state.image_loaded && !this.state.block_liked) &&
+            (this.state.textLoaded && this.state.imageLoaded && !this.state.blockLiked) &&
             <View style={styles.leftContainer}>
               <View style={styles.icon}>
                 <Icon
                   name={Platform.OS === 'ios' ? `ios-heart-outline` : 'md-heart-outline'}
                   type='ionicon'
-                  onPress={this._on_like.bind(this)}
+                  onPress={this.onLike.bind(this)}
                   color="#000"
                   style={styles.icon}
                   size={30}
@@ -304,13 +306,13 @@ export default class BlockComp extends React.Component {
               </View>
             </View>
           }
-          {(this.state.text_loaded && this.state.image_loaded && this.state.block_liked) &&
+          {(this.state.textLoaded && this.state.imageLoaded && this.state.blockLiked) &&
             <View style={styles.leftContainer}>
               <View style={styles.icon}>
                 <Icon
                   name={Platform.OS === 'ios' ? `ios-heart` : 'md-heart'}
                   type='ionicon'
-                  onPress={this._on_dislike.bind(this)}
+                  onPress={this.onDislike.bind(this)}
                   color="#664ea0"
                   style={styles.icon}
                   size={30}
@@ -319,34 +321,34 @@ export default class BlockComp extends React.Component {
             </View>
           }
 
-          {(this.state.text_loaded && this.state.image_loaded && this.state.text_error) &&
+          {(this.state.textLoaded && this.state.imageLoaded && this.state.textError) &&
             <View style={{flex: 1, height: 5, width: 5}}/>
           }
-          {(this.state.text_loaded && this.state.image_loaded) &&
+          {(this.state.textLoaded && this.state.imageLoaded) &&
             <View style={styles.leftContainer}>
               <Text style={[styles.numberText, styles.onePlusFontFix]}>{'#'+ (this.props.number) }</Text>
             </View>
           }
           {
-            (this.state.text_loaded && this.state.image_loaded && !this.state.text_error) &&
+            (this.state.textLoaded && this.state.imageLoaded && !this.state.textError) &&
             <View style={styles.leftContainer}>
               <Text style={[styles.gradeText, styles.onePlusFontFix]}>{this.state.block.data.getBlock.grade}</Text>
             </View>
           }
           {
-            (this.state.text_loaded && this.state.image_loaded && !this.state.text_error) &&
+            (this.state.textLoaded && this.state.imageLoaded && !this.state.textError) &&
             <View style={styles.leftContainer}>
               <Text style={[styles.locationText, styles.onePlusFontFix]}>{this.state.block.data.getBlock.location}</Text>
             </View>
           }
           {
-            (this.state.text_loaded && this.state.image_loaded && !this.state.text_error) &&
+            (this.state.textLoaded && this.state.imageLoaded && !this.state.textError) &&
             <View style={styles.leftContainer}>
               <Text style={[styles.statementText, styles.onePlusFontFix]}>{this.state.block.data.getBlock.statement}</Text>
             </View>
           }
           {
-            (this.state.text_loaded && this.state.image_loaded && this.state.text_error) &&
+            (this.state.textLoaded && this.state.imageLoaded && this.state.textError) &&
             <View style={styles.leftContainer}>
               <Text style={[styles.statementText, styles.onePlusFontFix]}>No Artist Statement Found</Text>
             </View>
@@ -389,7 +391,7 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginLeft: leftMargin,
     marginRight: leftMargin,
-    marginTop: topMargin
+    marginTop: topMargin,
   },
   numberText: {
     fontSize: textSize,
@@ -428,5 +430,11 @@ const styles = StyleSheet.create({
   icon: {
     marginLeft: leftMargin,
     marginTop: 5
+  },
+  onePlusFontFix: {
+      ...Platform.select({
+          ios: { fontFamily: 'Arial', },
+          android: { fontFamily: 'Roboto' }
+      })
   },
 })

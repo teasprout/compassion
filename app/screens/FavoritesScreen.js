@@ -18,15 +18,15 @@ export default class FavoritesScreen extends React.Component {
   }
 
   componentDidMount(){
-    this._get_liked_blocks();
+    this.getLikedBlocks();
   }
 
-  _get_liked_blocks = async () => {
+  /* get list of liked blocks from async storage */
+  getLikedBlocks = async () => {
     try {
       const stringKeys = await AsyncStorage.getItem('Liked');
       const keys = JSON.parse(stringKeys);
       const items = Object.values(keys).sort((a, b) => parseInt(b.time) - parseInt(a.time));
-      console.log(items);
       const viewableItems = items.slice(0, ITEMS);
       this.setState({
         items: items,
@@ -39,7 +39,8 @@ export default class FavoritesScreen extends React.Component {
     }
   }
 
-  _loadMoreBlocks(){
+  /* load more blocks when user scrolls past a certain threshold */
+  loadMoreBlocks(){
     const { page } = this.state;
     const start = page * ITEMS;
     const end = (page + 1) * ITEMS - 1;
@@ -52,28 +53,31 @@ export default class FavoritesScreen extends React.Component {
     })
   }
 
-  empty_function() {
+  /* Empty callback for BlockListComp */
+  emptyFunction() {
   }
 
-  _on_goBack = () => {
-    this._get_liked_blocks()
+ /* callback for block screen. reloads liked blocks in case the user unlikes the block */
+  onGoBack = () => {
+    this.getLikedBlocks()
   }
 
   render() {
     return (
       <View style={styles.containerLeft}>
         <StatusBar barStyle='light-content'/>
+        {/* list of blocks */}
         { this.state.keysLoaded &&
           <FlatList
             data={this.state.viewableItems}
-            onEndReached={this._loadMoreBlocks.bind(this)}
+            onEndReached={this.loadMoreBlocks.bind(this)}
             onEndReachedThreshold={0.5}
             renderItem={({item}) =>
-              <TouchableHighlight onPress={() => {this.props.navigation.navigate('Block', { number: parseInt(item.key), onGoBack: this._on_goBack.bind(this) })} }>
+              <TouchableHighlight onPress={() => {this.props.navigation.navigate('Block', { number: parseInt(item.key), onGoBack: this.onGoBack.bind(this) })} }>
                 <View>
                 <BlockListComp
                   number={ item.key }
-                  callback={ this.empty_function }
+                  callback={ this.emptyFunction }
                 />
                 </View>
               </TouchableHighlight>

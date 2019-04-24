@@ -32,10 +32,12 @@ export default StyleSheet.create({
       backgroundColor: '#fff',
       alignItems: 'center',
       marginLeft: 5,
+      maxWidth: '90%'
     },
     logo: {
       width: 375,
       height: 200,
+      maxWidth: '90%',
       alignItems: 'center',
       resizeMode: 'contain',
       marginTop: 30,

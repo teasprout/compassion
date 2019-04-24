@@ -17,13 +17,13 @@ export default class AboutScreen extends React.Component {
 
   render() {
     return (
+      <View style={{backgroundColor: "#ffffff", flex:1}}>
+      <StatusBar barStyle='light-content'/>
       <ScrollView>
-      <View style={styles.container}>
-        <StatusBar barStyle='light-content'/>
         <View style={styles.container}>
           <Image
-            source={require('../assets/images/mtlogo.jpg')}
-            style={styles.image}
+            source={require('../assets/images/mtlogo3400.png')}
+            style={styles.logo}
           />
           <Text style={[styles.onePlusFontFix, styles.h2]}>Our Mission</Text>
           <Text style={styles.textBox}>
@@ -42,6 +42,7 @@ export default class AboutScreen extends React.Component {
             For safety, peace, joy{'\n'}
           </Text>
             <View style={{flexDirection: 'row', marginTop: 5}}>
+          {/* link to compassion insta */}
           <TouchableOpacity style={{marginRight: 20}} onPress={() =>
               Linking.openURL('https://www.facebook.com/CompassionPject')}>
               <Icon
@@ -51,6 +52,7 @@ export default class AboutScreen extends React.Component {
                   size={50}
               />
           </TouchableOpacity>
+          {/* link to compassion insta */}
             <TouchableOpacity style={{marginRight: 20}} onPress={() =>
                 Linking.openURL('https://www.instagram.com/compassionpject/')}>
                 <Icon
@@ -60,6 +62,7 @@ export default class AboutScreen extends React.Component {
                     size={50}
                 />
             </TouchableOpacity>
+            {/* link to compassion website */}
             <TouchableOpacity onPress={() =>
                 Linking.openURL('https://rebrand.ly/CompassionMain')}>
                 <Icon
@@ -76,8 +79,8 @@ export default class AboutScreen extends React.Component {
                 <Text style={styles.linkText}>Privacy Policy</Text>
             </TouchableOpacity>
         </View>
-      </View>
       </ScrollView>
+      </View>
     );
   }
 }
